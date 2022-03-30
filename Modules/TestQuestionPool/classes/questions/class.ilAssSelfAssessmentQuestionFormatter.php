@@ -120,6 +120,9 @@ class ilAssSelfAssessmentQuestionFormatter implements ilAssSelfAssessmentMigrato
      */
     public static function getSelfAssessmentTags()
     {
+        return ilUtil::getSecureTags();
+
+        /*
         // set tags we allow in self assessment mode
         $st = ilUtil::getSecureTags();
         
@@ -139,5 +142,6 @@ class ilAssSelfAssessmentQuestionFormatter implements ilAssSelfAssessmentMigrato
         }
         
         return $tags;
+        */
     }
 }

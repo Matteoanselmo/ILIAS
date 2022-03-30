@@ -55,6 +55,7 @@ class ilRepositoryObjectResultTableGUI extends ilTable2GUI
                 break;
 
             case 'role':
+            case 'prg':
                 if ($this->parent_obj->role_callback) {
                     $this->addMultiCommand('addRole', $this->lng->txt('add_role'));
                 }
@@ -124,6 +125,15 @@ class ilRepositoryObjectResultTableGUI extends ilTable2GUI
                     } else {
                         $row['member'] = 0;
                     }
+                    break;
+
+                case 'prg':
+                    global $DIC;
+                    $ilDB = $DIC->database();
+                    include_once 'Modules/StudyProgramme/classes/model/Progress/class.ilStudyProgrammeProgressDBRepository.php';
+                    $query = "SELECT COUNT(*) AS N FROM " . ilStudyProgrammeProgressDBRepository::TABLE . " WHERE prg_id = '" . $object_id . "'";
+                    $res = $ilDB->query($query);
+                    $row['member'] = $ilDB->fetchAssoc($res)["N"];
                     break;
                     
                 case 'role':

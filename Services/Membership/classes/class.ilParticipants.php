@@ -137,7 +137,7 @@ abstract class ilParticipants
             case 'grp':
                 include_once './Modules/Group/classes/class.ilGroupParticipants.php';
                 return ilGroupParticipants::_getInstanceByObjId($a_obj_id);
-                
+
             case 'sess':
                 include_once './Modules/Session/classes/class.ilSessionParticipants.php';
                 return ilSessionParticipants::_getInstanceByObjId($a_obj_id);

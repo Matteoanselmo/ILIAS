@@ -1118,3 +1118,14 @@ function numericInputCheck() {
 $(document).ready( function(  ) {
 		numericInputCheck();
 });
+
+/* Mod: calculate image width to map items correctly (with hover) */
+$(document).ready(() => {
+	$(".il_VAccordionToggleDef").click(function() {
+		$(this).next(".il_VAccordionContentDef").find("canvas").width(function() {
+			console.log($(this).next("img").parent().parent().width());
+			return $(this).next("img").parent().parent().width();
+		});
+	});
+});
+/* End mod */

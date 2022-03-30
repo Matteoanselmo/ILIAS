@@ -752,6 +752,14 @@ class ilRepositorySearchGUI
         $groups->addSubItem($group);
         $kind->addOption($groups);
 
+        // Study programme
+        $studyprogrammes = new ilRadioOption($this->lng->txt('search_for_prg_members'), 'prg');
+        $studyprogramme = new ilTextInputGUI($this->lng->txt('search_prg_title'), 'rep_query[prg][title]');
+        $studyprogramme->setSize(30);
+        $studyprogramme->setMaxLength(120);
+	$studyprogrammes->addSubItem($studyprogramme);
+        $kind->addOption($studyprogrammes);
+
         // Orgus
         if (ilUserSearchOptions::_isEnabled("org_units")) {
             $orgus = new ilRadioOption($this->lng->txt('search_for_orgu_members'), 'orgu');
@@ -820,6 +828,10 @@ class ilRepositorySearchGUI
 
             case 'crs':
                 $this->__performCourseSearch();
+                break;
+
+            case 'prg':
+                $this->__performStudyProgrammeSearch();
                 break;
 
             case 'role':
@@ -989,6 +1001,28 @@ class ilRepositorySearchGUI
     }
 
     /**
+     * Search study programmes
+     * @return
+     */
+    protected function __performStudyProgrammeSearch()
+    {
+     	include_once 'Services/Search/classes/class.ilObjectSearchFactory.php';
+
+        $query_string = $_SESSION['rep_query']['prg']['title'];
+        if (!is_object($query_parser = $this->__parseQueryString($query_string))) {
+            ilUtil::sendInfo($query_parser, true);
+            return false;
+        }
+
+        include_once 'Services/Search/classes/Like/class.ilLikeObjectSearch.php';
+        $object_search = new ilLikeObjectSearch($query_parser);
+        $object_search->setFilter(array('prg'));
+        $this->__storeEntries($object_search->performSearch());
+
+        return true;
+    }
+
+    /**
      * Search roles
      * @return
      */
@@ -1140,6 +1174,10 @@ class ilRepositorySearchGUI
                 $this->showSearchCourseTable($_SESSION['rep_search']['crs']);
                 break;
 
+            case 'prg':
+                $this->showSearchStudyProgrammeTable($_SESSION['rep_search']['prg']);
+                break;
+
             case 'role':
                 $this->showSearchRoleTable($_SESSION['rep_search']['role']);
                 break;
@@ -1224,6 +1262,21 @@ class ilRepositorySearchGUI
     }
 
     /**
+     *
+     * @return
+     * @param array $a_obj_ids
+     */
+    protected function showSearchStudyProgrammeTable($a_obj_ids)
+    {
+     	include_once './Services/Search/classes/class.ilRepositoryObjectResultTableGUI.php';
+
+        $table = new ilRepositoryObjectResultTableGUI($this, 'showSearchResults', $this->object_selection);
+        $table->parseObjectIds($a_obj_ids);
+
+        $this->tpl->setVariable('RES_TABLE', $table->getHTML());
+    }
+
+    /**
      * List users of course/group/roles
      * @return
      */
@@ -1268,6 +1321,17 @@ class ilRepositorySearchGUI
                     }
                     break;
                     
+                case 'prg':
+                    global $DIC;
+                    $ilDB = $DIC->database();
+                    include_once 'Modules/StudyProgramme/classes/model/Progress/class.ilStudyProgrammeProgressDBRepository.php';
+                    $query = "SELECT usr_id FROM " . ilStudyProgrammeProgressDBRepository::TABLE . " WHERE prg_id = '" . $obj_id . "'";
+                    $res = $ilDB->query($query);
+                    while ($member = $ilDB->fetchAssoc($res)) {
+                        $members[] = $member["usr_id"];
+                    }
+                    break;
+
                 case 'role':
                     global $DIC;
 
@@ -1287,6 +1351,7 @@ class ilRepositorySearchGUI
                     
                     $members = array_merge($members, ilUserFilter::getInstance()->filter($assigned));
                     break;
+
                 case 'orgu':
                     if ($ref_ids = ilObject::_getAllReferences($obj_id)) {
                         $assigned = ilOrgUnitUserAssignmentQueries::getInstance()
@@ -1330,7 +1395,7 @@ class ilRepositorySearchGUI
     /**
      * Listener called from ilSearchResult
      * Id is obj_id for role, usr
-     * Id is ref_id for crs grp
+     * Id is ref_id for crs grp prg
      * @param int $a_id
      * @param array $a_data
      * @return

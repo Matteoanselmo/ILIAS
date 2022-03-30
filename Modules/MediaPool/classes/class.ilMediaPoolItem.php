@@ -158,7 +158,7 @@ class ilMediaPoolItem
         
         $nid = $ilDB->nextId("mep_item");
         $ilDB->manipulate("INSERT INTO mep_item " .
-            "(obj_id, type, foreign_id, title, import_id) VALUES (" .
+            "(obj_id, type, foreign_id, title, import_id, stylesheet_id) VALUES (" .
             $ilDB->quote($nid, "integer") . "," .
             $ilDB->quote($this->getType(), "text") . "," .
             $ilDB->quote($this->getForeignId(), "integer") . "," .

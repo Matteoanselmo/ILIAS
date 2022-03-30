@@ -132,6 +132,22 @@ class ilMediaPoolItem
     {
         return $this->title;
     }
+
+    /**
+     * Set StyleSheet Id
+     */
+    public function setStyleSheetId($a_val)
+    {
+        $this->stylesheet_id = $a_val;
+    }
+
+    /**
+     * Get StyleSheet Id
+     */
+    public function getStyleSheetId()
+    {
+        return $this->stylesheet_id ?? 0;
+    }
     
     /**
      * Create
@@ -147,7 +163,8 @@ class ilMediaPoolItem
             $ilDB->quote($this->getType(), "text") . "," .
             $ilDB->quote($this->getForeignId(), "integer") . "," .
             $ilDB->quote($this->getTitle(), "text") . "," .
-            $ilDB->quote($this->getImportId(), "text") .
+            $ilDB->quote($this->getImportId(), "text") . "," .
+            $ilDB->quote($this->getStyleSheetId(), "integer") .
             ")");
         $this->setId($nid);
     }
@@ -168,6 +185,7 @@ class ilMediaPoolItem
             $this->setForeignId($rec["foreign_id"]);
             $this->setTitle($rec["title"]);
             $this->setImportId($rec["import_id"]);
+            $this->setStyleSheetId($rec["stylesheet_id"]);
         }
     }
     
@@ -186,7 +204,8 @@ class ilMediaPoolItem
             " type = " . $ilDB->quote($this->getType(), "text") . "," .
             " foreign_id = " . $ilDB->quote($this->getForeignId(), "integer") . "," .
             " title = " . $ilDB->quote($this->getTitle(), "text") . "," .
-            " import_id = " . $ilDB->quote($this->getImportId(), "text") .
+            " import_id = " . $ilDB->quote($this->getImportId(), "text") . "," .
+            " stylesheet_id = " . $ilDB->quote($this->getStyleSheetId(), "integer") .
             " WHERE obj_id = " . $ilDB->quote($this->getId(), "integer")
         );
     }
@@ -226,7 +245,17 @@ class ilMediaPoolItem
         }
         return false;
     }
-    
+
+    /**
+     * Lookup StyleSheetId
+     *
+     * @param int mep item id
+     */
+    public static function lookupStyleSheetId($a_id)
+    {
+        return self::lookup($a_id, "stylesheet_id");
+    }
+
     /**
      * Lookup Foreign Id
      *

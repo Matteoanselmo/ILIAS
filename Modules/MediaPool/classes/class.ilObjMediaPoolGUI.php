@@ -1325,6 +1325,7 @@ class ilObjMediaPoolGUI extends ilObject2GUI
             include_once("./Modules/MediaPool/classes/class.ilMediaPoolItem.php");
             $item = new ilMediaPoolItem();
             $item->setTitle($_POST["title"]);
+            $item->setStyleSheetId(ilUtil::stripSlashes($_POST["style_id"]));
             $item->setType("pg");
             $item->create();
             
@@ -1358,9 +1359,11 @@ class ilObjMediaPoolGUI extends ilObject2GUI
      */
     public function updateMediaPoolPage()
     {
+        global $DIC;
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
         $tpl = $this->tpl;
+        $ilSetting = $DIC->settings();
 
         $this->checkPermission("write");
 
@@ -1368,6 +1371,11 @@ class ilObjMediaPoolGUI extends ilObject2GUI
         if ($this->form->checkInput()) {
             $item = new ilMediaPoolItem($_GET["mepitem_id"]);
             $item->setTitle($_POST["title"]);
+            if ($ilSetting->get("fixed_content_style_id") <= 0 &&
+                (ilObjStyleSheet::_lookupStandard($item->getStyleSheetId())
+                || $item->getStyleSheetId() == 0)) {
+                $item->setStyleSheetId(ilUtil::stripSlashes($_POST["style_id"]));
+            }
             $item->update();
             ilUtil::sendSuccess($lng->txt("msg_obj_modified"), true);
             $ilCtrl->redirect($this, "editMediaPoolPage");
@@ -1383,9 +1391,11 @@ class ilObjMediaPoolGUI extends ilObject2GUI
      */
     public function initMediaPoolPageForm($a_mode = "edit")
     {
+        global $DIC;
         $lng = $this->lng;
         $ilCtrl = $this->ctrl;
-    
+        $ilSetting = $DIC->settings();
+
         include_once("Services/Form/classes/class.ilPropertyFormGUI.php");
         $this->form = new ilPropertyFormGUI();
     
@@ -1394,7 +1404,36 @@ class ilObjMediaPoolGUI extends ilObject2GUI
         $ti->setMaxLength(128);
         $ti->setRequired(true);
         $this->form->addItem($ti);
-    
+
+        // custom style
+        $fixed_style = $ilSetting->get("fixed_content_style_id");
+        $def_style = $ilSetting->get("default_content_style_id");
+
+        if ($fixed_style > 0) {
+            $st = new ilNonEditableValueGUI($lng->txt("cont_current_style"));
+            $st->setValue(ilObject::_lookupTitle($fixed_style) . " (" .
+                $this->lng->txt("global_fixed") . ")");
+            $this->form->addItem($st);
+        } else {
+            $st_styles = ilObjStyleSheet::_getStandardStyles(
+                true,
+                false,
+                $_GET["ref_id"]
+            );
+
+            if ($def_style > 0) {
+                $st_styles[0] = ilObject::_lookupTitle($def_style) . " (" . $this->lng->txt("default") . ")";
+            } else {
+                $st_styles[0] = $this->lng->txt("default");
+            }
+            ksort($st_styles);
+
+            $style_sel = new ilSelectInputGUI($lng->txt("cont_current_style"), "style_id");
+            $style_sel->setOptions($st_styles);
+            $style_sel->setValue(0);
+            $this->form->addItem($style_sel);
+        }
+
         // save and cancel commands
         if ($a_mode == "create") {
             $this->form->addCommandButton("saveMediaPoolPage", $lng->txt("save"));
@@ -1417,7 +1456,8 @@ class ilObjMediaPoolGUI extends ilObject2GUI
     
         include_once("./Modules/MediaPool/classes/class.ilMediaPoolItem.php");
         $values["title"] = ilMediaPoolItem::lookupTitle($_GET["mepitem_id"]);
-    
+        $values["style_id"] = ilMediaPoolItem::lookupStyleSheetId($_GET["mepitem_id"]);
+
         $this->form->setValuesByArray($values);
     }
 

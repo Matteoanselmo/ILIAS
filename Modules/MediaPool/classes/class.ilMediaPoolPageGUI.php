@@ -42,6 +42,11 @@ class ilMediaPoolPageGUI extends ilPageObjectGUI
         include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
         $this->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(0));
 
+        include_once("./Services/Style/Content/classes/class.ilObjStyleSheet.php");
+        $this->setStyleId(ilObjStyleSheet::getEffectiveContentStyleId(
+            ilMediaPoolItem::lookupStyleSheetId($this->id)
+        ));
+
         $this->setEditPreview(true);
     }
     
@@ -124,7 +129,7 @@ class ilMediaPoolPageGUI extends ilPageObjectGUI
             $tpl->setCurrentBlock("ContentStyle");
             $tpl->setVariable(
                 "LOCATION_CONTENT_STYLESHEET",
-                ilObjStyleSheet::getContentStylePath(0)
+                ilObjStyleSheet::getContentStylePath(ilMediaPoolItem::lookupStyleSheetId($this->id))
             );
             $tpl->parseCurrentBlock();
 

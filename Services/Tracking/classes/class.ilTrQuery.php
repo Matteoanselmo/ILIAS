@@ -253,8 +253,8 @@ class ilTrQuery
         $ilDB = $DIC['ilDB'];
         
         $fields = array("usr_data.usr_id", "login", "active");
-        $udf = self::buildColumns($fields, $a_additional_fields);
-        
+        list($udf, $cdf) = self::buildColumns($fields, $a_additional_fields);
+
         $where = array();
         $where[] = "usr_data.usr_id <> " . $ilDB->quote(ANONYMOUS_USER_ID, "integer");
 
@@ -286,17 +286,22 @@ class ilTrQuery
         
         // udf data is added later on, not in this query
         $udf_order = null;
+        $cdf_order = null;
         if (!$a_order_field) {
             $a_order_field = "login";
         } elseif (substr($a_order_field, 0, 4) == "udf_") {
             $udf_order = $a_order_field;
+            $a_order_field = null;
+        } elseif (substr($a_order_field, 0, 4) == "cdf_") { // added cdf
+            $cdf_order = $a_order_field;
             $a_order_field = null;
         }
 
         $result = self::executeQueries($queries, $a_order_field, $a_order_dir, $a_offset, $a_limit);
         
         self::getUDFAndHandlePrivacy($result, $udf, $check_agreement, $privacy_fields, $a_filters);
-        
+        self::getCDF($result, $cdf);
+
         // as we cannot do this in the query, sort by custom field here
         // this will not work with pagination!
         if ($udf_order) {
@@ -304,6 +309,15 @@ class ilTrQuery
             $result["set"] = ilUtil::stableSortArray(
                 $result["set"],
                 $udf_order,
+                $a_order_dir
+            );
+        }
+
+        if ($cdf_order) {
+            include_once "Services/Utilities/classes/class.ilStr.php";
+            $result["set"] = ilUtil::stableSortArray(
+                $result["set"],
+                $cdf_order,
                 $a_order_dir
             );
         }
@@ -402,6 +416,41 @@ class ilTrQuery
         // $a_result["cnt"] = sizeof($a_result["set"]);
     }
 
+        /**
+     * Add cdf data to (user) result data
+     *
+     * @param array $a_result
+     * @param array $a_cdf
+     */
+    protected static function getCDF(
+        array &$a_result,
+        array $a_cdf = null
+    ) {
+        global $DIC;
+
+        $ilDB = $DIC['ilDB'];
+
+        if (!$a_result["cnt"]) {
+            return;
+        }
+
+        if (is_array($a_cdf) && count($a_cdf) > 0) {
+            $query = "SELECT usr_id, field_id, value FROM crs_user_data WHERE " . $ilDB->in("field_id", $a_cdf, false, "integer");
+            $set = $ilDB->query($query);
+            $cdf = array();
+            while ($row = $ilDB->fetchAssoc($set)) {
+                $cdf[$row["usr_id"]]["cdf_" . $row["field_id"]] = $row["value"];
+            }
+        }
+
+        foreach ($a_result["set"] as $idx => $row) {
+            // add cdf data
+            if (isset($cdf[$row["usr_id"]])) {
+                $a_result["set"][$idx] = $row = array_merge($row, $cdf[$row["usr_id"]]);
+            }
+        }
+    }
+
     /**
      * Get all object-based tracking data for user and parent object
      *
@@ -434,7 +483,7 @@ class ilTrQuery
         $ilDB = $DIC['ilDB'];
         
         $fields = array("object_data.obj_id", "title", "type");
-        self::buildColumns($fields, $a_additional_fields);
+        list($udf, $cdf) = self::buildColumns($fields, $a_additional_fields);
 
         $objects = self::getObjectIds($a_parent_obj_id, $a_parent_ref_id, $use_collection, true, array($a_user_id));
 
@@ -450,6 +499,19 @@ class ilTrQuery
 
         if (!in_array($a_order_field, $fields)) {
             $a_order_field = "title";
+        }
+
+        // udf data is added later on, not in this query
+        $udf_order = null;
+        $cdf_order = null;
+     	if (!$a_order_field) {
+            $a_order_field = "login";
+        } elseif (substr($a_order_field, 0, 4) == "udf_") {
+            $udf_order = $a_order_field;
+            $a_order_field = null;
+        } elseif (substr($a_order_field, 0, 4) == "cdf_") { // added cdf
+            $cdf_order = $a_order_field;
+            $a_order_field = null;
         }
 
         $result = self::executeQueries($queries, $a_order_field, $a_order_dir, $a_offset, $a_limit);
@@ -547,6 +609,29 @@ class ilTrQuery
                 }
             }
         }
+
+        // Add cdf data
+        $cdf_order = null;
+        if (!$a_order_field) {
+            $a_order_field = "login";
+        } elseif (substr($a_order_field, 0, 4) == "cdf_") { // added cdf
+            $cdf_order = $a_order_field;
+            $a_order_field = null;
+        }
+
+        self::getCDF($result, $cdf);
+
+        // as we cannot do this in the query, sort by custom field here
+        // this will not work with pagination!
+        if ($cdf_order) {
+            include_once "Services/Utilities/classes/class.ilStr.php";
+            $result["set"] = ilUtil::stableSortArray(
+                $result["set"],
+                $cdf_order,
+                $a_order_dir
+            );
+        }
+
         return $result;
     }
     
@@ -638,7 +723,7 @@ class ilTrQuery
         $ilDB = $DIC['ilDB'];
         
         $fields = array();
-        self::buildColumns($fields, $a_additional_fields, true);
+        list($udf, $cdf) = self::buildColumns($fields, $a_additional_fields, true);
 
         $objects = array();
         if ($a_preselected_obj_ids === null) {
@@ -677,7 +762,29 @@ class ilTrQuery
             if ($objects["objectives_parent_id"]) {
             }
         }
-        
+
+        // Add cdf data
+        $cdf_order = null;
+        if (!$a_order_field) {
+            $a_order_field = "login";
+        } elseif (substr($a_order_field, 0, 4) == "cdf_") { // added cdf
+            $cdf_order = $a_order_field;
+            $a_order_field = null;
+        }
+
+        self::getCDF($result, $cdf);
+
+        // as we cannot do this in the query, sort by custom field here
+        // this will not work with pagination!
+        if ($cdf_order) {
+            include_once "Services/Utilities/classes/class.ilStr.php";
+            $result["set"] = ilUtil::stableSortArray(
+                $result["set"],
+                $cdf_order,
+                $a_order_dir
+            );
+        }
+
         return array("cnt" => sizeof($result), "set" => $result);
     }
 
@@ -1117,8 +1224,13 @@ class ilTrQuery
     {
         if (sizeof($a_additional_fields)) {
             $udf = null;
+            $cdf = null;
             foreach ($a_additional_fields as $field) {
-                if (substr($field, 0, 4) != "udf_") {
+                if (substr($field, 0, 4) == "udf_") {
+                    $udf[] = substr($field, 4);
+                } else if (substr($field, 0, 4) == "cdf_") {
+                    $cdf[] = substr($field, 4);
+                } else {
                     $function = null;
                     if ($a_aggregate) {
                         $pos = strrpos($field, "_");
@@ -1175,8 +1287,6 @@ class ilTrQuery
                             }
                             break;
                     }
-                } else {
-                    $udf[] = substr($field, 4);
                 }
             }
             
@@ -1185,8 +1295,11 @@ class ilTrQuery
             if (is_array($udf)) {
                 $udf = array_unique($udf);
             }
+            if (is_array($cdf)) {
+                $cdf = array_unique($cdf);
+            }
             
-            return $udf;
+            return array($udf, $cdf);
         }
     }
 
@@ -1429,8 +1542,8 @@ class ilTrQuery
             self::refreshObjectsStatus($a_obj_ids, $a_users);
             
             $fields = array("usr_data.usr_id", "login", "active");
-            $udf = self::buildColumns($fields, $a_additional_fields);
-                
+            list($udf, $cdf) = self::buildColumns($fields, $a_additional_fields);
+
             include_once("./Services/Tracking/classes/class.ilLPStatus.php");
                     
             // #18673 - if parent supports percentage does not matter for "sub-items"
@@ -1488,6 +1601,27 @@ class ilTrQuery
             $result["users"] = $a_users;
             
             self::getUDFAndHandlePrivacy($result, $udf, $a_check_agreement, $a_privacy_fields, $a_additional_fields);
+            self::getCDF($result, $cdf);
+
+            // as we cannot do this in the query, sort by custom field here
+            // this will not work with pagination!
+            if ($udf_order) {
+                include_once "Services/Utilities/classes/class.ilStr.php";
+                $result["set"] = ilUtil::stableSortArray(
+                    $result["set"],
+                    $udf_order,
+                    $a_order_dir
+                );
+            }
+
+            if ($cdf_order) {
+                include_once "Services/Utilities/classes/class.ilStr.php";
+                $result["set"] = ilUtil::stableSortArray(
+                    $result["set"],
+                    $cdf_order,
+                    $a_order_dir
+                );
+            }
         }
         return $result;
     }

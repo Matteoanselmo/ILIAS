@@ -932,7 +932,7 @@ class ilLPTableBaseGUI extends ilTable2GUI
             ($a_in_course || $a_in_group)) {
             // only show if export permission is granted
             include_once('Services/PrivacySecurity/classes/class.ilPrivacySettings.php');
-            if (ilPrivacySettings::_getInstance()->checkExportAccess($this->ref_id)) {
+            //if (ilPrivacySettings::_getInstance()->checkExportAccess($this->ref_id)) {
                 // other user profile fields
                 foreach ($ufs as $f => $fd) {
                     if (!isset($cols[$f]) && $f != "username" && !$fd["lists_hide"]) {
@@ -971,7 +971,22 @@ class ilLPTableBaseGUI extends ilTable2GUI
                         $privacy_fields[] = $f;
                     }
                 }
-            }
+
+                // additional defined course data fields
+                include_once('./Modules/Course/classes/Export/class.ilCourseDefinedFieldDefinition.php');
+                if ($a_in_course) {
+                    $course_defined_fields = ilCourseDefinedFieldDefinition::_getFields($a_in_course);
+                    foreach ($course_defined_fields as $definition) {
+                        $f = "cdf_" . $definition->getId();
+                        $cols[$f] = array(
+                            "txt" => $definition->getName(),
+                            "default" => false
+                        );
+
+                        $privacy_fields[] = $f;
+                    }
+                }
+            //}
         }
 
         return array($cols, $privacy_fields);

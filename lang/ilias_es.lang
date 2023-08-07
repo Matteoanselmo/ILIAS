@@ -16301,3 +16301,21 @@ common#:#obj_chtr_duplicate#:#Copy Chat Room###16 03 2022 new variable
 assessment#:#err_division#:#This value has to be smaller than the maximum range.###16 03 2022 new variable
 assessment#:#err_divider_too_big#:#The divider of one of the variables in this question is too big.###16 03 2022 new variable
 tagging#:#tagging_no_obj_for_tag#:#No Resources tagged with %s.###16 03 2022 new variable
+buddysystem#:#buddy_bs_state_linked_p#:#Linked###04 05 2022 new variable
+buddysystem#:#buddy_bs_state_unlinked#:#Unlinked###04 05 2022 new variable
+buddysystem#:#buddy_bs_state_unlinked_p#:#Unlinked###04 05 2022 new variable
+buddysystem#:#buddy_bs_state_requested_filter_a#:#Waiting for Reaction###04 05 2022 new variable
+buddysystem#:#buddy_bs_state_requested_filter_p#:#Action Required###04 05 2022 new variable
+common#:#certificates#:#Certificates###20 07 2022 new variable
+common#:#report_accessibility_link_mailto#:#Reported%20Link:###20 07 2022 new variable
+glo#:#glo_please_select_other_glo#:#Please select another glossary.###20 07 2022 new variable
+sess#:#sess_warn_sess_type_changed#:#Do you really want to change the session type? All permission settings will be reset.###20 07 2022 new variable
+sess#:#sess_info_new_sess_type#:#New Session Type###20 07 2022 new variable
+sess#:#il_sess_status_open#:#Open Session###20 07 2022 new variable
+sess#:#sess_change_type#:#Change Session Type###20 07 2022 new variable
+lti#:#conf_privacy_ident_il_uuid_SHA256#:#Hash combined with a unique ILIAS platform id formatted as an E-Mail address###20 07 2022 new variable
+lti#:#conf_privacy_ident_il_uuid_SHA256_info#:#This is identical to each call, but does not permit any direct conclusions about the ILIAS user.###20 07 2022 new variable
+cmix#:#conf_privacy_ident_il_uuid_SHA256#:#Hash combined with a unique ILIAS platform id formatted as an E-Mail address###20 07 2022 new variable
+cmix#:#conf_privacy_ident_il_uuid_SHA256_info#:#This is identical to each call, but does not permit any direct conclusions about the ILIAS user.###20 07 2022 new variable
+content#:#cont_credit_mode_info#:#The Learning Module is informed via cmi.core.credit whether the achieved Performance (pass/fail and score) is desired (credit) or not desired (no-credit) for the Assessment. It is the responsibility of the Learning Module to interpret this Instruction adequately.###24 09 2022 new variable
+auth#:#auth_oidc_failed#:#Login via OpenID Connect failed###29 03 2023 new variable

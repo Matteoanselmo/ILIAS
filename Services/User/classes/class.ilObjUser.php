@@ -3321,10 +3321,16 @@ class ilObjUser extends ilObject
         while ($obj = $ilDB->fetchAssoc($objs)) {
             if ($obj["type"] == "mob") {
                 $obj["title"] = ilObject::_lookupTitle($obj["item_id"]);
+                if (ilObject::_lookupType((int) $obj["item_id"]) !== "mob") {
+                    continue;
+                }
             }
             if ($obj["type"] == "incl") {
                 include_once("./Modules/MediaPool/classes/class.ilMediaPoolPage.php");
                 $obj["title"] = ilMediaPoolPage::lookupTitle($obj["item_id"]);
+                if (!ilPageObject::_exists("mep", (int) $obj["item_id"], "-")) {
+                    continue;
+                }
             }
             $objects[] = array("id" => $obj["item_id"],
                 "type" => $obj["type"], "title" => $obj["title"],
@@ -4096,8 +4102,10 @@ class ilObjUser extends ilObject
             $start = new ilDateTime($this->getTimeLimitFrom(), IL_CAL_UNIX);
             $end = new ilDateTime($this->getTimeLimitUntil(), IL_CAL_UNIX);
             
-            $body .= $language->txt('time_limit') . ': ' . $start->get(IL_CAL_DATETIME);
-            $body .= $language->txt('time_limit') . ': ' . $end->get(IL_CAL_DATETIME);
+            $body .= $language->txt('time_limit') . ': ' .
+                $language->txt('from') . " " .
+                $start->get(IL_CAL_DATETIME) . " ";
+            $body .= $language->txt('to') . ' ' . $end->get(IL_CAL_DATETIME);
         }
 
         include_once './Services/User/classes/class.ilUserDefinedFields.php';

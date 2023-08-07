@@ -1,5 +1,22 @@
 <?php
-/* Copyright (c) 1998-2011 ILIAS open source, Extended GPL, see docs/LICENSE */
+
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 /**
 * BlockGUI class for Selected Items on Personal Desktop
@@ -506,8 +523,6 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
 
     public function manageObject()
     {
-        $this->main_tpl->setTitle($this->lng->txt("dash_favourites"));
-
         $this->blockView->setIsInManageMode(true);
 
         $top_tb = new ilToolbarGUI();
@@ -515,10 +530,25 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $top_tb->setLeadingImage(ilUtil::getImagePath('arrow_upright.svg'), $this->lng->txt('actions'));
 
         $button = ilSubmitButton::getInstance();
+        $grouped_items = $this->blockView->getItemGroups();
         if ($this->viewSettings->isSelectedItemsViewActive()) {
             $button->setCaption('remove');
         } else {
             $button->setCaption('pd_unsubscribe_memberships');
+            foreach ($grouped_items as $group) {
+                $items = $group->getItems();
+                $group->setItems([]);
+                foreach ($items as $item) {
+                    if ($this->rbacsystem->checkAccess('leave', $item['ref_id'])) {
+                        if (
+                            $item['type'] !== 'crs' ||
+                            ilParticipants::getInstance($item['ref_id'])->checkLastAdmin([$this->user->getId()])
+                        ) {
+                            $group->pushItem($item);
+                        }
+                    }
+                }
+            }
         }
         $button->setCommand('confirmRemove');
         $top_tb->addStickyItem($button);
@@ -530,7 +560,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         $bot_tb->addStickyItem($button);
         $bot_tb->setOpenFormTag(false);
 
-        return $top_tb->getHTML() . $this->renderManageList() . $bot_tb->getHTML();
+        return $top_tb->getHTML() . $this->renderManageList($grouped_items) . $bot_tb->getHTML();
     }
 
     /**
@@ -824,7 +854,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
         return $renderer->render($subs);
     }
 
-    protected function renderManageList() : string
+    protected function renderManageList(array $grouped_items) : string
     {
         $ui = $this->ui;
 
@@ -851,11 +881,7 @@ class ilPDSelectedItemsBlockGUI extends ilBlockGUI implements ilDesktopItemHandl
             }
         }
 
-        $grouped_items = $this->blockView->getItemGroups();
-
-        $renderer = new ilDashObjectsTableRenderer($this);
-
-        return $renderer->render($grouped_items);
+        return (new ilDashObjectsTableRenderer($this))->render($grouped_items);
     }
 
     /**

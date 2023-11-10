@@ -8347,6 +8347,9 @@ survey#:#please_enter_mail_code#:#Please enter the access code placeholder [code
 survey#:#please_enter_mail_url#:#Please enter the access url placeholder [url]
 survey#:#mail_sent_short#:#Sent
 survey#:#finished_mail_subject#:#The survey "%s" was finished
+survey#:#invited_mail_survey#:#Survey Invitation
+survey#:#invited_mail_survey_body#:#<br><br>In order to continuously improve the quality of our service, we would like to get your opinion about your experience with our training service. <br>Please take a moment to complete the survey below, your reply will help us to better serve you. <br>The purpose of the data obtained by these replies is to learn more about your user experience.<br><br>
+survey#:#svy_users_invited#:#Users have been invited.
 survey#:#msg_min_nr_answers#:#Please check at least %s answer(s).
 survey#:#msg_max_nr_answers#:#Please check at most %s answers.
 survey#:#msg_min_max_nr_answers#:#Please check at least %s and at most %s answers.

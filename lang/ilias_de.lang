@@ -9150,6 +9150,9 @@ survey#:#filter#:#Filter
 survey#:#filter_all_question_types#:#Alle Fragetypen
 survey#:#filter_all_questionpools#:#Alle Fragenpools
 survey#:#finished_mail_subject#:#Die Umfrage "%s" wurde beendet
+survey#:#invited_mail_survey#:#Einladung zur umfrage
+survey#:#invited_mail_survey_body#:#<br><br>Um die Qualität unseres Service kontinuierlich zu verbessern, würden wir gerne Ihre Meinung zu Ihrer Erfahrung mit unserem Training kennenlernen. <br>Bitte nehmen Sie sich einen Moment Zeit, um die unten stehende Umfrage auszufüllen. Ihre Antwort hilft uns, Ihnen besser zu dienen. <br>Der Zweck durch diese Antworten erhaltenen Daten besteht darin, mehr über Ihre Benutzererfahrung zu lernen.
+survey#:#svy_users_invited#:#Die Benutzer wurden eingeladen
 survey#:#geometric_mean#:#Geometrisches Mittel
 survey#:#given_answers#:#Abgegebene Antworten
 survey#:#glossary_term#:#Glossarbegriff

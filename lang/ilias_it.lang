@@ -14743,6 +14743,9 @@ survey#:#filter#:#Filtra in
 survey#:#filter_all_questionpools#:#Tutte le raccolte di domande
 survey#:#filter_all_question_types#:#Tutti i tipi di domande
 survey#:#finished_mail_subject#:#Il sondaggio è terminato
+survey#:#invited_mail_survey#:#Invito al sondaggio
+survey#:#invited_mail_survey_body#:#<br><br>Al fine di migliorare costantemente la qualità del nostro servizio, vorremmo conoscere la tua opinione sulla tua esperienza con il nostro servizio di formazione. <br>Ti preghiamo di completare il sondaggio qui sotto: la vostra risposta ci aiuterà a servirvi meglio. <br>Lo scopo dei dati ottenuti da queste risposte è quello di saperne di più sulla vostra esperienza d'uso.<br><br>
+survey#:#svy_users_invited#:#Gli utenti sono stati invitati.
 survey#:#freetext_answers#:#Apri domande
 survey#:#geometric_mean#:#Significato geometrico
 survey#:#given_answers#:#Risposte fornite

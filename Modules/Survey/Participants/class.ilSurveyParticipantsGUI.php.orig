@@ -1719,22 +1719,12 @@ class ilSurveyParticipantsGUI
         $lng = $this->lng;
         $ctrl = $this->ctrl;
 
-	//sendMail for Invite Users.
-        $ntf = new ilSystemNotification();
-        $ntf->setLangModules(array("survey"));
-        $ntf->setRefId($this->ref_id);
-        $ntf->setSubjectLangId('invited_mail_survey');
-        $ntf->setIntroductionLangId("invited_mail_survey_body");
-
         if (is_array($user_ids)) {
             foreach ($user_ids as $user_id) {
-                $email = ilObjUser::_lookupEmail($user_id);
                 $this->invitation_manager->add($this->object->getSurveyId(), (int) $user_id);
-                $lng = $ntf->getUserLanguage($user_id);
-                $ntf->sendMail(array($email), null, null);
             }
         }
-	ilUtil::sendSuccess($lng->txt("svy_users_invited"), true);
+        ilUtil::sendSuccess($lng->txt("svy_users_invited"), true);
         $ctrl->redirect($this, "maintenance");
     }
 }
